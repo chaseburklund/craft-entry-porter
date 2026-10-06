@@ -1,0 +1,9 @@
+<div class="btngroup" id="porter-buttons" data-entry-id="{{ entryId }}" data-site-id="{{ siteId }}" data-provisional="{{ isProvisionalDraft ? '1' : '0' }}" data-named-draft="{{ isNamedDraftOfCanonical ? '1' : '0' }}">
+    {% if isProvisionalDraft %}
+        <button type="button" id="porter-copy" class="btn" title="Copies the last SAVED version of this entry -- your in-progress, unsaved edits in this session are not included">Porter: Copy JSON (last saved)</button>
+    {% elseif isNamedDraftOfCanonical %}
+        <button type="button" id="porter-copy" class="btn" title="Copies the PUBLISHED entry's content -- this draft's own edits are not included, since Porter always exports the canonical entry">Porter: Copy JSON (canonical, not this draft)</button>
+    {% else %}
+        <button type="button" id="porter-copy" class="btn" title="Copy this entry as Porter JSON">Porter: Copy JSON</button>
+    {% endif %}
+</div>

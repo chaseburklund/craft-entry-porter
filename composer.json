@@ -1,0 +1,68 @@
+{
+    "name": "chaseburklund/craft-entry-porter",
+    "description": "Copy entries, including their Neo, Matrix and Super Table blocks, between Craft CMS environments. Element references are remapped by UID and every import lands as a reviewable draft.",
+    "type": "craft-plugin",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "entries",
+        "content",
+        "staging",
+        "environments",
+        "neo",
+        "matrix"
+    ],
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Chase Burklund",
+            "homepage": "https://github.com/chaseburklund"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/chaseburklund/craft-entry-porter/issues",
+        "source": "https://github.com/chaseburklund/craft-entry-porter",
+        "docs": "https://github.com/chaseburklund/craft-entry-porter/blob/main/README.md"
+    },
+    "require": {
+        "php": "^8.2",
+        "craftcms/cms": "^5.9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "chaseburklund\\entryporter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "chaseburklund\\entryporter\\tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "handle": "entry-porter",
+        "name": "Entry Porter",
+        "developer": "Chase Burklund",
+        "developerUrl": "https://github.com/chaseburklund",
+        "documentationUrl": "https://github.com/chaseburklund/craft-entry-porter/blob/main/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/chaseburklund/craft-entry-porter/main/CHANGELOG.md",
+        "class": "chaseburklund\\entryporter\\Plugin"
+    },
+    "scripts": {
+        "test": "phpunit"
+    },
+    "config": {
+        "allow-plugins": {
+            "craftcms/plugin-installer": true,
+            "yiisoft/yii2-composer": true
+        },
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2"
+        }
+    }
+}

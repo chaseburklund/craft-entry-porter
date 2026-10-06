@@ -1,0 +1,10 @@
+<div id="porter-utility">
+    {% if canImport %}
+        <p>Paste Porter JSON exported from another environment. The entry lands as an unpublished draft.</p>
+        <textarea id="porter-json" class="text fullwidth" rows="14" placeholder='{"porter": {...}, "entry": {...}}'></textarea>
+        <button type="button" id="porter-import-btn" class="btn submit">Import as draft</button>
+        <div id="porter-result" class="porter-result"></div>
+    {% else %}
+        <p>Your account does not have the &ldquo;Import entries from Porter JSON&rdquo; permission, so nothing pasted here could be imported. Ask an administrator to grant it if you need to paste entries into this environment.</p>
+    {% endif %}
+</div>
