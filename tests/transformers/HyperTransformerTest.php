@@ -33,7 +33,7 @@ final class HyperTransformerTest extends TestCase
         $this->assertNull($out[0]['linkSiteId']);
         $this->assertSame('About', $out[0]['linkText']);
         $this->assertSame('https://x.com', $out[1]['linkValue']);
-        $this->assertNotEmpty($report->warnings); // linkSiteId cleared
+        $this->assertSame([], $report->warnings, 'clearing the site ID is routine and not reported');
     }
 
     /** Formie form links use the 'form' kind. */
@@ -60,10 +60,7 @@ final class HyperTransformerTest extends TestCase
         $this->assertSame($entryRef, $out[0]['linkValue']);
     }
 
-    /**
-     * An empty selection is normal: no lookup and no warning for it. The link's site ID is
-     * still cleared, with its own warning.
-     */
+    /** An empty selection is normal: no lookup and no warning. The link's site ID is cleared. */
     public function testExportTreatsEmptySelectionAsNoSelectionWithoutSpuriousWarning(): void
     {
         $resolver = new FakeResolver();
@@ -73,8 +70,7 @@ final class HyperTransformerTest extends TestCase
         $out = $t->export(new FieldDescriptor('verbb\\hyper\\fields\\HyperField', 'itemLink'), $value, $resolver, $report);
         $this->assertSame([], $out[0]['linkValue']);
         $this->assertNull($out[0]['linkSiteId']);
-        $this->assertCount(1, $report->warnings);
-        $this->assertStringContainsString('linkSiteId', $report->warnings[0]);
+        $this->assertSame([], $report->warnings);
     }
 
     /** An unrecognizable linkValue is kept as it is, with a warning. */

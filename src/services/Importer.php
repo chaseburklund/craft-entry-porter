@@ -399,22 +399,19 @@ class Importer
         // --- Resolver state ------------------------------------------------
         // The resolver is shared with the exporter, so these import-specific settings are
         // restored afterwards, including when the import fails. The site scopes natural-key
-        // lookups, the source origin is used to report assets fetched from a different host,
-        // and the importing user is checked for volume permissions before an asset is created.
+        // lookups, and the importing user is checked for volume permissions before an asset is
+        // created.
         $previousSiteId = $this->resolver->siteId;
-        $previousSourceOrigin = $this->resolver->sourceOrigin;
         $previousImportingUser = $this->resolver->importingUser;
         $origin = $payload['porter']['source']['origin'] ?? null;
         $origin = (is_string($origin) && $origin !== '') ? $origin : null;
         $this->resolver->siteId = $site->id;
-        $this->resolver->sourceOrigin = $origin;
         $this->resolver->importingUser = $importer;
 
         try {
             return $this->write($data, $section, $type->id, $site->id, $layoutFields, $importer, $origin, $report);
         } finally {
             $this->resolver->siteId = $previousSiteId;
-            $this->resolver->sourceOrigin = $previousSourceOrigin;
             $this->resolver->importingUser = $previousImportingUser;
         }
     }

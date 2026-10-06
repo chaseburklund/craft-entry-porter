@@ -117,53 +117,26 @@ final class CraftResolverUrlSafetyTest extends TestCase
         return $method->invoke($resolver, $url, $report, 'test-file.jpg');
     }
 
-    public function testUnsafeUrlIsRejectedRegardlessOfSourceOrigin(): void
+    public function testUnsafeUrlIsRejectedWithAWarning(): void
     {
         $resolver = new CraftResolver();
-        $resolver->sourceOrigin = 'http://127.0.0.1';
         $report = new Report();
 
         $this->assertFalse($this->invokeIsUrlSafeToFetch($resolver, 'http://127.0.0.1/x', $report));
         $this->assertNotSame([], $report->warnings);
     }
 
-    /** A URL on a different host from the source origin is fetched, and the difference reported. */
-    public function testHostMismatchIsAllowedAndReported(): void
+    /**
+     * Assets are usually served from a CDN rather than the source's own host, so a public URL
+     * on any host is fetched without a warning. The import report records the host the file
+     * came from on the created-asset entry instead.
+     */
+    public function testAPublicUrlOnAnyHostIsFetchedWithoutAWarning(): void
     {
         $resolver = new CraftResolver();
-        $resolver->sourceOrigin = 'https://api.example.com';
         $report = new Report();
 
-        $result = $this->invokeIsUrlSafeToFetch($resolver, 'https://8.8.8.8/foo.jpg', $report);
-
-        $this->assertTrue($result, 'a public URL on a different host than the source origin must still be fetched');
-        $this->assertCount(1, $report->warnings);
-        $this->assertStringContainsString('8.8.8.8', $report->warnings[0]);
-        $this->assertStringContainsString('api.example.com', $report->warnings[0]);
-    }
-
-    public function testMatchingOriginProducesNoWarning(): void
-    {
-        $resolver = new CraftResolver();
-        $resolver->sourceOrigin = 'https://8.8.8.8';
-        $report = new Report();
-
-        $result = $this->invokeIsUrlSafeToFetch($resolver, 'https://8.8.8.8/foo.jpg', $report);
-
-        $this->assertTrue($result);
+        $this->assertTrue($this->invokeIsUrlSafeToFetch($resolver, 'https://8.8.8.8/foo.jpg', $report));
         $this->assertSame([], $report->warnings);
-    }
-
-    public function testNullSourceOriginIsReportedAsAMismatchButStillAllowed(): void
-    {
-        $resolver = new CraftResolver();
-        // sourceOrigin left at its null default.
-        $report = new Report();
-
-        $result = $this->invokeIsUrlSafeToFetch($resolver, 'https://8.8.8.8/foo.jpg', $report);
-
-        $this->assertTrue($result);
-        $this->assertCount(1, $report->warnings);
-        $this->assertStringContainsString('none was set', $report->warnings[0]);
     }
 }

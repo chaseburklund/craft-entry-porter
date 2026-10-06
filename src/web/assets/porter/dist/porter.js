@@ -125,7 +125,7 @@
                 '<p class="porter-ok">' + escapeHtml(pathSummary(r)) + editLinkHtml(r.cpEditUrl) + '</p>' +
                 renderList('Warnings', report.warnings) +
                 renderList('Unresolved references (dropped)', report.unresolved.map(refLabel)) +
-                renderList('Resolved by fallback', report.resolvedByFallback.map((f) => refLabel(f.ref) + ' (' + f.how + ')'));
+                renderList('Resolved by fallback', report.resolvedByFallback.map((f) => refLabel(f.ref) + ' (' + f.how + (f.from ? ' from ' + f.from : '') + ')'));
             Craft.cp.displayNotice('Imported as draft.');
         } catch (e) {
             out.innerHTML = '';

@@ -69,12 +69,6 @@ class CraftResolver implements ResolverInterface
      */
     public ?int $siteId = null;
 
-    /**
-     * The source origin declared by the payload being imported. Used only to report when an
-     * asset is downloaded from a different host; it does not restrict the download.
-     */
-    public ?string $sourceOrigin = null;
-
     public function describeElement(string $kind, int $id): ?array
     {
         $elementType = self::KIND_ELEMENT_CLASSES[$kind] ?? null;
@@ -234,7 +228,11 @@ class CraftResolver implements ResolverInterface
         if (($ref['kind'] ?? '') === 'asset' && $this->createMissingAssets && !empty($ref['url'])) {
             $id = $this->createAssetFromUrl($ref, $report);
             if ($id !== null) {
-                $report->resolvedByFallback[] = ['ref' => $ref, 'how' => 'created-asset'];
+                $report->resolvedByFallback[] = [
+                    'ref' => $ref,
+                    'how' => 'created-asset',
+                    'from' => (string)(parse_url($ref['url'], PHP_URL_HOST) ?: ''),
+                ];
                 return $id;
             }
         }
@@ -609,28 +607,13 @@ class CraftResolver implements ResolverInterface
         return filter_var(inet_ntop($packed), FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 
-    /**
-     * Refuses URLs that fail isUrlPubliclyFetchable(), and reports, without refusing, an
-     * asset hosted somewhere other than the payload's declared source origin. Assets are
-     * commonly served from a CDN on a different host, so a mismatch is normal and only
-     * reported so the operator can see where a file came from.
-     */
+    /** Refuses, with a warning, a URL that fails isUrlPubliclyFetchable(). */
     private function isUrlSafeToFetch(string $url, Report $report, string $filenameForLog): bool
     {
         if (!self::isUrlPubliclyFetchable($url)) {
             $report->warn("Asset fetch refused for {$filenameForLog}: '{$url}' is not an http(s) URL resolving to a public address.");
             return false;
         }
-
-        $parts = parse_url($url) ?: [];
-        $host = (string)($parts['host'] ?? '');
-        $urlOrigin = strtolower((string)($parts['scheme'] ?? '')) . '://' . $host . (isset($parts['port']) ? ':' . $parts['port'] : '');
-        $declaredOrigin = $this->sourceOrigin !== null ? rtrim($this->sourceOrigin, '/') : null;
-        if ($declaredOrigin === null || strcasecmp($urlOrigin, $declaredOrigin) !== 0) {
-            $report->warn("Asset fetch for {$filenameForLog}: URL host '{$host}' differs from the payload's declared source origin"
-                . ($declaredOrigin === null ? ' (none was set)' : " '{$declaredOrigin}'") . '; fetching anyway.');
-        }
-
         return true;
     }
 

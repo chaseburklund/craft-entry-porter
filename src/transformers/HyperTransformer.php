@@ -20,8 +20,8 @@ use chaseburklund\entryporter\port\TransformerInterface;
  * Commerce, Calendar and Shopify. Element types the resolver does not support cannot be
  * described, so those links are cleared with a warning rather than copied with a source ID.
  *
- * `linkSiteId` is cleared, and custom fields nested inside a link are copied without
- * remapping their element references, with a warning.
+ * `linkSiteId` is cleared. Custom fields nested inside a link are copied without remapping
+ * their element references, with a warning.
  */
 final class HyperTransformer implements TransformerInterface
 {
@@ -89,8 +89,8 @@ final class HyperTransformer implements TransformerInterface
             }
         }
 
-        if (array_key_exists('linkSiteId', $link) && $link['linkSiteId'] !== null) {
-            $report->warn("Field '{$field->handle}': linkSiteId cleared (single-site v1).");
+        // Site IDs are per install, and the link resolves in the entry's own site anyway.
+        if (array_key_exists('linkSiteId', $link)) {
             $link['linkSiteId'] = null;
         }
 
