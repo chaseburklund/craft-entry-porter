@@ -3,11 +3,15 @@
 namespace chaseburklund\entryporter\services;
 
 use Craft;
+use craft\base\Element;
+use craft\elements\db\ElementQuery;
 use craft\elements\Entry;
+use craft\events\CancelableEvent;
 use craft\helpers\App;
 use chaseburklund\entryporter\port\FieldDescriptor;
 use chaseburklund\entryporter\port\Registry;
 use chaseburklund\entryporter\port\Report;
+use yii\base\Event;
 use yii\base\InvalidConfigException;
 
 /**
@@ -33,10 +37,37 @@ class Exporter
         // previous site is restored afterward.
         $previousSiteId = $this->resolver->siteId;
         $this->resolver->siteId = $entry->siteId;
+        // Matrix, Super Table and Neo serialize only the blocks their field query returns, and
+        // that query returns enabled blocks only. Disabled blocks would be lost, and Neo would
+        // attach a disabled block's children to the block before it.
+        $handler = [self::class, 'includeDisabledNestedElements'];
+        Event::on(ElementQuery::class, ElementQuery::EVENT_BEFORE_PREPARE, $handler);
         try {
             return $this->buildPayload($entry, $report);
         } finally {
+            Event::off(ElementQuery::class, ElementQuery::EVENT_BEFORE_PREPARE, $handler);
             $this->resolver->siteId = $previousSiteId;
+        }
+    }
+
+    /**
+     * Includes disabled elements in a nested-element query (Matrix and Super Table entries, Neo
+     * blocks) that still has its default status filter: `live` for entries, `enabled` for other
+     * elements. Each block's `enabled` flag is part of its serialized value, so the target
+     * recreates a disabled block as disabled.
+     */
+    public static function includeDisabledNestedElements(CancelableEvent $event): void
+    {
+        $query = $event->sender;
+        $defaultStatuses = [[Element::STATUS_ENABLED], [Entry::STATUS_LIVE]];
+        if (!$query instanceof ElementQuery || !in_array($query->status, $defaultStatuses, true)) {
+            return;
+        }
+        $fieldId = property_exists($query, 'fieldId') ? $query->fieldId : null;
+        $ownerId = property_exists($query, 'ownerId') ? $query->ownerId : null;
+        $primaryOwnerId = property_exists($query, 'primaryOwnerId') ? $query->primaryOwnerId : null;
+        if ($fieldId !== null && ($ownerId !== null || $primaryOwnerId !== null)) {
+            $query->status = null;
         }
     }
 
