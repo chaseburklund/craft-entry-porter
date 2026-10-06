@@ -158,6 +158,17 @@ final class RegistryFactoryTest extends TestCase
         $out = $registry->export(new FieldDescriptor('craft\\fields\\Tags', 'f'), [42], $resolver, $report);
         $this->assertSame([], $out, 'an undescribable tag id must be dropped, never copied through');
         $this->assertStringContainsString('could not describe tag #42', $report->warnings[0]);
+
+        // SimpleMapTransformer: the record IDs are dropped, without a warning.
+        $report = new Report();
+        $out = $registry->export(
+            new FieldDescriptor('ether\\simplemap\\fields\\MapField', 'f'),
+            ['id' => 3, 'ownerId' => 9, 'lat' => 1.5, 'lng' => 2.5],
+            $resolver,
+            $report,
+        );
+        $this->assertSame(['lat' => 1.5, 'lng' => 2.5], $out);
+        $this->assertSame([], $report->warnings);
     }
 
     /**

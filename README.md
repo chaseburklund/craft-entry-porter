@@ -81,6 +81,7 @@ References that still cannot be matched are dropped and listed in the import rep
 | Matrix, Super Table, Neo | Blocks recreated; their fields handled by type |
 | CKEditor, Redactor | Reference tags in the content remapped |
 | Link (Craft), Hyper, Typed Link Field | Element links remapped; other links copied as is |
+| simplemap Map | Location copied; the receiving environment keeps its own map records |
 | SEOmatic SEO Settings | Copied as is, with a reminder to review it |
 | Image Optimize Optimized Images | Not copied; the receiving environment regenerates it |
 

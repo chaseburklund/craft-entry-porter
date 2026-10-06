@@ -12,6 +12,7 @@ use chaseburklund\entryporter\transformers\MatrixTransformer;
 use chaseburklund\entryporter\transformers\NeoTransformer;
 use chaseburklund\entryporter\transformers\RelationTransformer;
 use chaseburklund\entryporter\transformers\SeoSettingsTransformer;
+use chaseburklund\entryporter\transformers\SimpleMapTransformer;
 use chaseburklund\entryporter\transformers\SkipTransformer;
 use chaseburklund\entryporter\transformers\UnportableTransformer;
 
@@ -41,6 +42,7 @@ final class RegistryFactory
         $registry->add(new NeoTransformer($registry));
         $registry->add(new HyperTransformer());
         $registry->add(new HtmlFieldTransformer());
+        $registry->add(new SimpleMapTransformer());
         $registry->add(new KnownSafeTransformer());
         return $registry;
     }
